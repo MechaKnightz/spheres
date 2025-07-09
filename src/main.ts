@@ -52,10 +52,31 @@ const pipeline = device.createRenderPipeline({
   },
 });
 
+// color uniform
+const colorUniformSize = 4;
+const colorBuffer = device.createBuffer({
+  size: colorUniformSize,
+  usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+});
+
+const colorBufferValues = new Float32Array(colorUniformSize / 4);
+colorBufferValues[0] = 1;
+
+const bindGroup = device.createBindGroup({
+  layout: pipeline.getBindGroupLayout(0),
+  entries: [{ binding: 0, resource: { buffer: colorBuffer } }],
+});
+
+// ********************************************************
+
 function frame() {
-  const color = Math.sin(Date.now() / 1000);
+  const color = Math.sin(Date.now() / 500);
   const commandEncoder = device.createCommandEncoder();
   const textureView = context.getCurrentTexture().createView();
+
+  colorBufferValues[0] = color;
+
+  device.queue.writeBuffer(colorBuffer, 0, colorBufferValues);
 
   const renderPassDescriptor: GPURenderPassDescriptor = {
     colorAttachments: [
@@ -68,10 +89,11 @@ function frame() {
     ],
   };
 
-  const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-  passEncoder.setPipeline(pipeline);
-  passEncoder.draw(6);
-  passEncoder.end();
+  const pass = commandEncoder.beginRenderPass(renderPassDescriptor);
+  pass.setPipeline(pipeline);
+  pass.setBindGroup(0, bindGroup);
+  pass.draw(6);
+  pass.end();
 
   device.queue.submit([commandEncoder.finish()]);
   requestAnimationFrame(frame);
