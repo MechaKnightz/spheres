@@ -4,6 +4,15 @@ import "./style.css";
 import triangleVertWGSL from "./shaders/triangle.vert.wgsl?raw";
 import redFragWGSL from "./shaders/red.frag.wgsl?raw";
 
+type Ball = {
+  x: number;
+  y: number;
+  radius: number;
+};
+const FLOAT_SIZE = 4;
+
+// setup canvas and device
+
 const canvas = document.querySelector("canvas") as HTMLCanvasElement;
 const adapter = await navigator.gpu?.requestAdapter({
   featureLevel: "compatibility",
@@ -52,8 +61,9 @@ const pipeline = device.createRenderPipeline({
   },
 });
 
+// setup uniforms
 // color uniform
-const colorUniformSize = 4 * 4;
+const colorUniformSize = FLOAT_SIZE * 4;
 const colorBuffer = device.createBuffer({
   size: colorUniformSize,
   usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -61,12 +71,53 @@ const colorBuffer = device.createBuffer({
 
 const colorBufferValues = new Float32Array(colorUniformSize / 4);
 
-const bindGroup = device.createBindGroup({
-  layout: pipeline.getBindGroupLayout(0),
-  entries: [{ binding: 0, resource: { buffer: colorBuffer } }],
+// ball uniform
+const ballCount = 1;
+
+const ballStride = 3;
+
+const ballUniformSize = FLOAT_SIZE * ballStride * ballCount;
+
+const ballsToBufferValues = (balls: Ball[]) => {
+  const bufferValues = new Float32Array(ballUniformSize / FLOAT_SIZE);
+  balls.forEach((ball, index) => {
+    bufferValues[index * ballStride] = ball.x;
+    bufferValues[index * ballStride + 1] = ball.y;
+    bufferValues[index * ballStride + 2] = ball.radius;
+  });
+  return bufferValues;
+};
+
+const balls: Ball[] = [{ x: 0.5, y: 0.5, radius: 0.1 }];
+
+const ballBufferValues = ballsToBufferValues(balls);
+
+const ballBuffer = device.createBuffer({
+  size: ballUniformSize,
+  usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 });
 
-// ********************************************************
+// canvas size uniform
+const canvasSizeUniformSize = FLOAT_SIZE * 2;
+const canvasSizeBuffer = device.createBuffer({
+  size: canvasSizeUniformSize,
+  usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+});
+const canvasSizeBufferValues = new Float32Array(
+  canvasSizeUniformSize / FLOAT_SIZE
+);
+canvasSizeBufferValues[0] = canvas.width;
+canvasSizeBufferValues[1] = canvas.height;
+
+// bind both uniforms
+const bindGroup = device.createBindGroup({
+  layout: pipeline.getBindGroupLayout(0),
+  entries: [
+    { binding: 0, resource: { buffer: colorBuffer } },
+    { binding: 1, resource: { buffer: ballBuffer } },
+    { binding: 2, resource: { buffer: canvasSizeBuffer } },
+  ],
+});
 
 function frame() {
   const time = Date.now() / 1000;
@@ -79,6 +130,8 @@ function frame() {
   const textureView = context.getCurrentTexture().createView();
 
   device.queue.writeBuffer(colorBuffer, 0, colorBufferValues);
+  device.queue.writeBuffer(ballBuffer, 0, ballBufferValues);
+  device.queue.writeBuffer(canvasSizeBuffer, 0, canvasSizeBufferValues);
 
   const renderPassDescriptor: GPURenderPassDescriptor = {
     colorAttachments: [
