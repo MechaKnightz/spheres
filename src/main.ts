@@ -53,14 +53,13 @@ const pipeline = device.createRenderPipeline({
 });
 
 // color uniform
-const colorUniformSize = 4;
+const colorUniformSize = 4 * 4;
 const colorBuffer = device.createBuffer({
   size: colorUniformSize,
   usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 });
 
 const colorBufferValues = new Float32Array(colorUniformSize / 4);
-colorBufferValues[0] = 1;
 
 const bindGroup = device.createBindGroup({
   layout: pipeline.getBindGroupLayout(0),
@@ -70,11 +69,14 @@ const bindGroup = device.createBindGroup({
 // ********************************************************
 
 function frame() {
-  const color = Math.sin(Date.now() / 500);
+  const time = Date.now() / 1000;
+  colorBufferValues[0] = Math.sin(time);
+  colorBufferValues[1] = Math.cos(time);
+  colorBufferValues[2] = Math.tan(time);
+  colorBufferValues[3] = Math.atan(time);
+
   const commandEncoder = device.createCommandEncoder();
   const textureView = context.getCurrentTexture().createView();
-
-  colorBufferValues[0] = color;
 
   device.queue.writeBuffer(colorBuffer, 0, colorBufferValues);
 
