@@ -72,7 +72,14 @@ const colorBuffer = device.createBuffer({
 const colorBufferValues = new Float32Array(colorUniformSize / 4);
 
 // ball uniform
-const ballCount = 1;
+
+const balls: Ball[] = [
+  { x: 0.5, y: 0.2, radius: 0.2 },
+  { x: 0.6, y: 0.4, radius: 0.2 },
+  { x: 0.2, y: 0.4, radius: 0.3 },
+];
+
+const ballCount = balls.length;
 
 const ballStride = 3;
 
@@ -87,8 +94,6 @@ const ballsToBufferValues = (balls: Ball[]) => {
   });
   return bufferValues;
 };
-
-const balls: Ball[] = [{ x: 0.5, y: 0.5, radius: 0.1 }];
 
 const ballBufferValues = ballsToBufferValues(balls);
 
