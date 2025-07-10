@@ -2,12 +2,22 @@ import "./style.css";
 
 // ?raw to make vite import as string
 import triangleVertWGSL from "./shaders/triangle.vert.wgsl?raw";
-import redFragWGSL from "./shaders/red.frag.wgsl?raw";
+import redFragWGSL from "./shaders/metaballs.frag.wgsl?raw";
+
+type Point2D = {
+  x: number;
+  y: number;
+  z: number;
+};
+
+type Point3D = {
+  z: number;
+} & Point2D;
 
 type Ball = {
   radius: number;
-  velocity: Point;
-} & Point;
+  velocity: Point3D;
+} & Point3D;
 const FLOAT_SIZE = 4;
 
 // setup canvas and device
@@ -70,20 +80,21 @@ const colorBuffer = device.createBuffer({
 
 const colorBufferValues = new Float32Array(colorUniformSize / 4);
 
-type Point = {
-  x: number;
-  y: number;
-};
-
 // ball uniform
 const balls: Ball[] = [
-  { x: 0.5, y: 0.2, radius: 0.2, velocity: { x: 0.2, y: 0.2 } },
-  { x: 0.3, y: 0.6, radius: 0.2, velocity: { x: -0.01, y: 0.2 } },
+  { x: 0.5, y: 0.2, z: 0.0, radius: 0.2, velocity: { x: 0.2, y: 0.2, z: 0.0 } },
+  {
+    x: 0.3,
+    y: 0.6,
+    z: 0.0,
+    radius: 0.2,
+    velocity: { x: -0.01, y: 0.2, z: 0.0 },
+  },
 ];
 
 const ballCount = balls.length;
 
-const ballStride = 5;
+const ballStride = 7;
 
 const ballUniformSize = FLOAT_SIZE * ballStride * ballCount;
 
@@ -92,9 +103,11 @@ const ballsToBufferValues = (balls: Ball[]) => {
   balls.forEach((ball, index) => {
     bufferValues[index * ballStride] = ball.x;
     bufferValues[index * ballStride + 1] = ball.y;
-    bufferValues[index * ballStride + 2] = ball.radius;
-    bufferValues[index * ballStride + 3] = ball.velocity.x;
-    bufferValues[index * ballStride + 4] = ball.velocity.y;
+    bufferValues[index * ballStride + 2] = ball.z;
+    bufferValues[index * ballStride + 3] = ball.radius;
+    bufferValues[index * ballStride + 4] = ball.velocity.x;
+    bufferValues[index * ballStride + 5] = ball.velocity.y;
+    bufferValues[index * ballStride + 6] = ball.velocity.z;
   });
   return bufferValues;
 };

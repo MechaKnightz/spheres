@@ -1,6 +1,7 @@
 struct Velocity {
     x: f32,
     y: f32,
+    z: f32,
 };
 
 struct Colors {
@@ -13,6 +14,7 @@ struct Colors {
 struct Ball {
     x: f32,
     y: f32,
+    z: f32,
     radius: f32,
     velocity: Velocity,
 };
@@ -26,7 +28,6 @@ struct CanvasSize {
 @group(0) @binding(1) var<storage, read> balls: array<Ball>;
 @group(0) @binding(2) var<uniform> canvas_size: CanvasSize;
 @group(0) @binding(3) var<uniform> delta_time: f32;
-
 
 
 const BASE_COLOR = vec4f(0.0, 0.0, 0.0, 1.0);
