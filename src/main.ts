@@ -91,7 +91,7 @@ const generateBalls = (count: number) => {
       x: Math.random(),
       y: Math.random(),
       z: Math.random(),
-      radius: Math.random() * 0.2 + 0.1,
+      radius: Math.random() * 0.01 + 0.1,
       velocity: {
         x: Math.random() * 0.2 - 0.1,
         y: Math.random() * 0.2 - 0.1,
@@ -120,7 +120,7 @@ const generateBalls = (count: number) => {
 //   },
 // ];
 
-const balls = generateBalls(10);
+const balls = generateBalls(50);
 
 const ballCount = balls.length;
 

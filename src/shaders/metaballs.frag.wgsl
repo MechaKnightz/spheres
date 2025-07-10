@@ -33,7 +33,8 @@ struct CanvasSize {
 
 
 const BASE_COLOR = vec4f(0.0, 0.0, 0.0, 1.0);
-const METABALL_THRESHOLD = 1.2;
+const METABALL_THRESHOLD = 0.9;
+const METABALL_SCALE = 0.3;
 
 @fragment
 fn main(@builtin(position) coord: vec4f) -> @location(0) vec4f {
@@ -55,7 +56,7 @@ fn main(@builtin(position) coord: vec4f) -> @location(0) vec4f {
 
     var color = BASE_COLOR;
     if sum >= METABALL_THRESHOLD {
-        let intensity = min(sum / METABALL_THRESHOLD, 2.0);
+        let intensity = min(sum / METABALL_THRESHOLD, 3.0);
         color = mix(BASE_COLOR, ball_color, intensity * 0.8);
     }
 
@@ -65,5 +66,5 @@ fn main(@builtin(position) coord: vec4f) -> @location(0) vec4f {
 fn get_metaball(pos: vec2f, ball_pos: vec3f, radius: f32, camera_z: f32) -> f32 {
     let dist_sq = pow(ball_pos.x - pos.x, 2.0) + pow(ball_pos.y - pos.y, 2.0) + pow(camera_z - ball_pos.z, 2.0);
     // prevent divide by 0
-    return (radius * radius) / (dist_sq + 0.0001);
+    return ((radius * radius) * METABALL_SCALE) / (dist_sq + 0.0001);
 }
