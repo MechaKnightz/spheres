@@ -5,10 +5,9 @@ import triangleVertWGSL from "./shaders/triangle.vert.wgsl?raw";
 import redFragWGSL from "./shaders/red.frag.wgsl?raw";
 
 type Ball = {
-  x: number;
-  y: number;
   radius: number;
-};
+  velocity: Point;
+} & Point;
 const FLOAT_SIZE = 4;
 
 // setup canvas and device
@@ -71,16 +70,20 @@ const colorBuffer = device.createBuffer({
 
 const colorBufferValues = new Float32Array(colorUniformSize / 4);
 
-// ball uniform
+type Point = {
+  x: number;
+  y: number;
+};
 
+// ball uniform
 const balls: Ball[] = [
-  { x: 0.5, y: 0.2, radius: 0.2 },
-  { x: 0.3, y: 0.8, radius: 0.3 },
+  { x: 0.5, y: 0.2, radius: 0.2, velocity: { x: 0.2, y: 0.2 } },
+  { x: 0.3, y: 0.6, radius: 0.2, velocity: { x: -0.01, y: 0.2 } },
 ];
 
 const ballCount = balls.length;
 
-const ballStride = 3;
+const ballStride = 5;
 
 const ballUniformSize = FLOAT_SIZE * ballStride * ballCount;
 
@@ -90,11 +93,11 @@ const ballsToBufferValues = (balls: Ball[]) => {
     bufferValues[index * ballStride] = ball.x;
     bufferValues[index * ballStride + 1] = ball.y;
     bufferValues[index * ballStride + 2] = ball.radius;
+    bufferValues[index * ballStride + 3] = ball.velocity.x;
+    bufferValues[index * ballStride + 4] = ball.velocity.y;
   });
   return bufferValues;
 };
-
-const ballBufferValues = ballsToBufferValues(balls);
 
 const ballBuffer = device.createBuffer({
   size: ballUniformSize,
@@ -123,15 +126,36 @@ const bindGroup = device.createBindGroup({
   ],
 });
 
+let time = new Date().getTime();
+
 function frame() {
-  const time = Date.now() / 1000;
-  colorBufferValues[0] = Math.sin(time);
-  colorBufferValues[1] = Math.cos(time);
-  colorBufferValues[2] = Math.tan(time);
-  colorBufferValues[3] = Math.atan(time);
+  const newTime = new Date().getTime();
+  const deltaTime = (newTime - time) / 1000;
+  time = newTime;
+
+  const colorTime = time / 1000;
+
+  balls.forEach((ball) => {
+    ball.x += ball.velocity.x * deltaTime;
+    ball.y += ball.velocity.y * deltaTime;
+
+    if (ball.x < 0 || ball.x > 1) {
+      ball.velocity.x = -ball.velocity.x;
+    }
+    if (ball.y < 0 || ball.y > 1) {
+      ball.velocity.y = -ball.velocity.y;
+    }
+  });
+
+  colorBufferValues[0] = Math.sin(colorTime);
+  colorBufferValues[1] = Math.cos(colorTime);
+  colorBufferValues[2] = Math.tan(colorTime);
+  colorBufferValues[3] = Math.atan(colorTime);
 
   const commandEncoder = device.createCommandEncoder();
   const textureView = context.getCurrentTexture().createView();
+
+  const ballBufferValues = ballsToBufferValues(balls);
 
   device.queue.writeBuffer(colorBuffer, 0, colorBufferValues);
   device.queue.writeBuffer(ballBuffer, 0, ballBufferValues);
