@@ -33,8 +33,12 @@ struct CanvasSize {
 
 
 const BASE_COLOR = vec4f(0.0, 0.0, 0.0, 1.0);
-const METABALL_THRESHOLD = 0.9;
+const METABALL_THRESHOLD = 1.0;
+// change this to same as METABALL_THRESHOLD if you want to see the edges more
+// higher values = closer edge
+const METABALL_CUTOFF = 0.1; 
 const METABALL_SCALE = 0.3;
+const INTENSITY_SCALE = 0.8;
 
 @fragment
 fn main(@builtin(position) coord: vec4f) -> @location(0) vec4f {
@@ -55,9 +59,9 @@ fn main(@builtin(position) coord: vec4f) -> @location(0) vec4f {
     let ball_color = vec4(uv, 0.25 + 0.5 * sin(delta_time), 1.0);
 
     var color = BASE_COLOR;
-    if sum >= METABALL_THRESHOLD {
+    if sum >= METABALL_CUTOFF {
         let intensity = min(sum / METABALL_THRESHOLD, 3.0);
-        color = mix(BASE_COLOR, ball_color, intensity * 0.8);
+        color = mix(BASE_COLOR, ball_color, intensity * INTENSITY_SCALE);
     }
 
     return color;
