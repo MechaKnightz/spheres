@@ -17,7 +17,9 @@ move the camera with up and down arrow
 # sources
 
 https://medium.com/@lioie6478/metaball-effect-with-glsl-78c453ef46f4
+
 https://webgpulab.xbdev.net/index.php?page=editor&id=metaballs&
+
 this entire website: https://webgpufundamentals.org/
 
 # further optimization
