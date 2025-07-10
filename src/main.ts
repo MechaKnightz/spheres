@@ -116,6 +116,14 @@ const canvasSizeBufferValues = new Float32Array(
 canvasSizeBufferValues[0] = canvas.width;
 canvasSizeBufferValues[1] = canvas.height;
 
+// time uniform
+const timeUniformSize = FLOAT_SIZE;
+const timeBuffer = device.createBuffer({
+  size: timeUniformSize,
+  usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+});
+const timeBufferValues = new Float32Array(timeUniformSize / FLOAT_SIZE);
+
 // bind both uniforms
 const bindGroup = device.createBindGroup({
   layout: pipeline.getBindGroupLayout(0),
@@ -123,6 +131,7 @@ const bindGroup = device.createBindGroup({
     { binding: 0, resource: { buffer: colorBuffer } },
     { binding: 1, resource: { buffer: ballBuffer } },
     { binding: 2, resource: { buffer: canvasSizeBuffer } },
+    { binding: 3, resource: { buffer: timeBuffer } },
   ],
 });
 
@@ -145,12 +154,15 @@ function frame() {
     if (ball.y < 0 || ball.y > 1) {
       ball.velocity.y = -ball.velocity.y;
     }
+
+    console.log({ ball });
   });
 
   colorBufferValues[0] = Math.sin(colorTime);
   colorBufferValues[1] = Math.cos(colorTime);
   colorBufferValues[2] = Math.tan(colorTime);
   colorBufferValues[3] = Math.atan(colorTime);
+  timeBufferValues[0] = deltaTime;
 
   const commandEncoder = device.createCommandEncoder();
   const textureView = context.getCurrentTexture().createView();
@@ -160,6 +172,7 @@ function frame() {
   device.queue.writeBuffer(colorBuffer, 0, colorBufferValues);
   device.queue.writeBuffer(ballBuffer, 0, ballBufferValues);
   device.queue.writeBuffer(canvasSizeBuffer, 0, canvasSizeBufferValues);
+  device.queue.writeBuffer(timeBuffer, 0, timeBufferValues);
 
   const renderPassDescriptor: GPURenderPassDescriptor = {
     colorAttachments: [

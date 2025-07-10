@@ -25,6 +25,7 @@ struct CanvasSize {
 @group(0) @binding(0) var<uniform> colors: Colors;
 @group(0) @binding(1) var<storage, read> balls: array<Ball>;
 @group(0) @binding(2) var<uniform> canvas_size: CanvasSize;
+@group(0) @binding(3) var<uniform> delta_time: f32;
 
 
 
@@ -45,7 +46,8 @@ fn main(@builtin(position) coord: vec4f) -> @location(0) vec4f {
         sum += influence;
     }
 
-    let ball_color = vec4f(colors.r, colors.g, colors.b, colors.a);
+    // let ball_color = vec4f(colors.r, colors.g, colors.b, colors.a);
+    let ball_color = vec4(uv, 0.25 + 0.5 * sin(delta_time), 1.0);
 
     var color = BASE_COLOR;
     if sum >= METABALL_THRESHOLD {
