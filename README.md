@@ -10,6 +10,10 @@ yarn install (npm install is probably fine)
 yarn run dev / npm run dev
 ```
 
+# movement
+
+move the camera with up and down arrow
+
 # sources
 
 https://medium.com/@lioie6478/metaball-effect-with-glsl-78c453ef46f4
