@@ -28,6 +28,8 @@ struct CanvasSize {
 @group(0) @binding(1) var<storage, read> balls: array<Ball>;
 @group(0) @binding(2) var<uniform> canvas_size: CanvasSize;
 @group(0) @binding(3) var<uniform> delta_time: f32;
+@group(0) @binding(4) var<uniform> camera_z: f32;
+
 
 
 const BASE_COLOR = vec4f(0.0, 0.0, 0.0, 1.0);
@@ -36,14 +38,15 @@ const METABALL_THRESHOLD = 1.2;
 @fragment
 fn main(@builtin(position) coord: vec4f) -> @location(0) vec4f {
     let test = colors.r;
+    let camera_z = camera_z;
 
     let canvas_size = vec2f(canvas_size.width, canvas_size.height);
     let uv = (coord.xy / canvas_size);
 
     var sum = 0.0;
     for (var i = 0u; i < arrayLength(&balls); i++) {
-        let ball_pos = vec2f(balls[i].x, balls[i].y);
-        let influence = get_metaball(uv, ball_pos, balls[i].radius);
+        let ball_pos = vec3f(balls[i].x, balls[i].y, balls[i].z);
+        let influence = get_metaball(uv, ball_pos, balls[i].radius, camera_z);
         sum += influence;
     }
 
@@ -59,8 +62,8 @@ fn main(@builtin(position) coord: vec4f) -> @location(0) vec4f {
     return color;
 }
 
-fn get_metaball(pos: vec2f, ball_pos: vec2f, radius: f32) -> f32 {
-    let dist_sq = pow(ball_pos.x - pos.x, 2.0) + pow(ball_pos.y - pos.y, 2.0);
+fn get_metaball(pos: vec2f, ball_pos: vec3f, radius: f32, camera_z: f32) -> f32 {
+    let dist_sq = pow(ball_pos.x - pos.x, 2.0) + pow(ball_pos.y - pos.y, 2.0) + pow(camera_z - ball_pos.z, 2.0);
     // prevent divide by 0
     return (radius * radius) / (dist_sq + 0.0001);
 }
