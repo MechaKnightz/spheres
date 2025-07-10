@@ -18,4 +18,4 @@ this entire website: https://webgpufundamentals.org/
 
 # further optimization
 
-you could optimize the amount of range checks done by putting all metaballs into predefined spaces with like a 3d quadtree and only checking spaces that are close to the camera. we can figure out where the pixel is based on the uv and the camera z value and only check adjacent cubes. https://gameprogrammingpatterns.com/spatial-partition.html
+you could optimize the amount of range checks done by putting all metaballs into predefined spaces with like a 3d quadtree and only checking spaces that are close to the camera. we can figure out where the pixel is based on the uv and the camera z value and only check adjacent cubes. this depends on the radius of the cubes. https://gameprogrammingpatterns.com/spatial-partition.html
