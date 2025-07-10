@@ -27,3 +27,5 @@ this entire website: https://webgpufundamentals.org/
 runs somewhat smooth at about 1000x1000 with 1000 balls, my macbook struggles at max res a bit though
 
 you could optimize the amount of range checks done by putting all metaballs into predefined spaces with like a 3d quadtree and only checking spaces that are close to the camera. we can figure out where the pixel is based on the uv and the camera z value and only check adjacent cubes. this depends on the radius of the cubes. https://gameprogrammingpatterns.com/spatial-partition.html
+
+you could also lower the pricision to something like f8, could give some performance benefit
