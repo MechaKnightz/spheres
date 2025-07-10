@@ -33,11 +33,11 @@ struct CanvasSize {
 
 
 const BASE_COLOR = vec4f(0.0, 0.0, 0.0, 1.0);
-const METABALL_THRESHOLD = 1.0;
+const METABALL_THRESHOLD = 8.0;
 // change this to same as METABALL_THRESHOLD if you want to see the edges more
 // higher values = closer edge
 const METABALL_CUTOFF = 0.1; 
-const METABALL_SCALE = 0.3;
+const METABALL_SCALE = 0.2;
 const INTENSITY_SCALE = 0.8;
 
 @fragment
